@@ -1,11 +1,11 @@
-heat_template_version: 2016-04-08
+heat_template_version: 2020-06-04
 #
 # you can deploy this template using the following command:
 # 'openstack stack create -t example.yaml -e example-env.yaml <Stack Name>'
-# 
-# after successful stack creation you can login with 
-# ssh -l syseleven <externalIP> 
-# 
+#
+# after successful stack creation you can login with
+# ssh -l syseleven <externalIP>
+#
 
 description: Stack that launches a single server
 
@@ -35,12 +35,12 @@ resources:
     type: OS::Nova::Server
     depends_on: [ cloud-init-config, port ]
     properties:
-      name: 
-        list_join: [ '-', [ { get_param: "OS::stack_name" }, 'example-server' ]]
+      name:
+        list_join: [ '-', [ { get_param: "OS::stack_name" }, 'vm' ]]
       user_data_format: RAW
-      user_data: { get_resource: cloud-init-config }    
-      image: { get_param: image } 
-      flavor: { get_param: flavor } 
+      user_data: { get_resource: cloud-init-config }
+      image: { get_param: image }
+      flavor: { get_param: flavor }
       networks:
         - port: { get_resource: port }
 
@@ -51,35 +51,35 @@ resources:
     cloud_config:
       manage_etc_hosts: true
       users:
-        - name: syseleven
-          gecos: syseleven Stack user
+        - name: ubuntu
+          gecos: ubuntu
           sudo: ALL=(ALL) NOPASSWD:ALL
           shell: /bin/bash
           lock-passwd: false
-          ssh-authorized-keys: { get_param: ssh_keys }  
+          ssh-authorized-keys: { get_param: ssh_keys }
 
   allow_ssh:
     type: OS::Neutron::SecurityGroup
     properties:
       description: allow incoming SSH and ICMP traffic from anywhere.
-      name: 
-        list_join: [ '-', [ { get_param: "OS::stack_name" }, 'kickstart', 'allow incoming traffic, tcp port 22 and icmp']]
-      rules: 
-        - { direction: ingress, remote_ip_prefix: 0.0.0.0/0, port_range_min: 22, port_range_max: 22, protocol: tcp } 
-        - { direction: ingress, remote_ip_prefix: 0.0.0.0/0, protocol: icmp } 
+      name:
+        list_join: [ '-', [ { get_param: "OS::stack_name" }, 'sec_group']]
+      rules:
+        - { direction: ingress, remote_ip_prefix: 0.0.0.0/0, port_range_min: 22, port_range_max: 22, protocol: tcp }
+        - { direction: ingress, remote_ip_prefix: 0.0.0.0/0, protocol: icmp }
 
   net:
     type: OS::Neutron::Net
-    properties: 
-      name: 
-        list_join: [ '-', [ { get_param: "OS::stack_name" }, 'example-net' ]]
+    properties:
+      name:
+        list_join: [ '-', [ { get_param: "OS::stack_name" }, 'net' ]]
 
   subnet:
     type: OS::Neutron::Subnet
     depends_on: [ net ]
     properties:
-      name: 
-        list_join: [ '-', [ { get_param: "OS::stack_name" }, 'example-subnet' ]]
+      name:
+        list_join: [ '-', [ { get_param: "OS::stack_name" }, 'subnet' ]]
       dns_nameservers:
         - 8.8.8.8
         - 8.8.4.4
@@ -93,8 +93,8 @@ resources:
     type: OS::Neutron::Router
     properties:
       external_gateway_info: {"network": { get_param: public_network }}
-      name: 
-        list_join: [ '-', [ { get_param: "OS::stack_name" }, 'example-router' ]]
+      name:
+        list_join: [ '-', [ { get_param: "OS::stack_name" }, 'router' ]]
 
   router_subnet_bridge:
     type: OS::Neutron::RouterInterface
