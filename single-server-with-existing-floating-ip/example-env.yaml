@@ -5,3 +5,4 @@ parameters:
   flavor: m1.small
   ssh_keys:
     - 'ssh-rsa AAAAB [...] QQRnnQ== user@host'
+  key_pair_name: key_name
