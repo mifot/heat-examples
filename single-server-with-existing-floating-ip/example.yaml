@@ -28,6 +28,8 @@ parameters:
       - custom_constraint: nova.flavor
   ssh_keys:
     type: comma_delimited_list
+  key_pair_name:
+    type: string
 
 resources:
 
@@ -41,6 +43,7 @@ resources:
       user_data: { get_resource: cloud-init-config }
       image: { get_param: image }
       flavor: { get_param: flavor }
+      key_name: { get_param: key_pair_name }
       networks:
         - port: { get_resource: port }
 
